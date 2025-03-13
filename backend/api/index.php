@@ -1,1 +1,2 @@
-//
+file index
+<?php?>

@@ -1,1 +1,2 @@
-/* */
+tạo middle ware
+<?php?>
