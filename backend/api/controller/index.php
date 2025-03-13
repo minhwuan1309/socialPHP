@@ -1,2 +1,3 @@
-controller
-<?php?>
+<?php
+    echo "Đây là controller";
+?>

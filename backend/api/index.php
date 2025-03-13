@@ -1,2 +1,4 @@
 file index
-<?php?>
+<?php
+    echo "Đây là index";
+?>
