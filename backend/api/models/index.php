@@ -1,2 +1,4 @@
 tạo model
-<?php?>
+<?php
+    echo "Đây là model";
+?>
