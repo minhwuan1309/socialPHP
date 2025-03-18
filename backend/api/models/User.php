@@ -15,10 +15,11 @@ class User{
         return $stmt;
     }
 
-    public function getUserById($id){
-        $query = "SELECT * FROM " . $this->table . " WHERE id = ?";
+    public function getUserByEmail($search){
+        $query = "SELECT * FROM " . $this->table . " WHERE email LIKE :search OR name LIKE :search";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $id);
+        $search = "%" . $search . "%"; // Tìm kiếm gần đúng
+        $stmt->bindParam(':search', $search, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt;
     }

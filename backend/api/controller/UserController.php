@@ -19,9 +19,9 @@ class UserController {
         echo json_encode($users);
     }
 
-    public function getUser($id){
-        $result = $this->user->getUserById($id);
-        $user = $result->fetch(PDO::FETCH_ASSOC);
+    public function getUser($search){
+        $result = $this->user->getUserByEmail($search);
+        $user = $result->fetchAll(PDO::FETCH_ASSOC);
 
         if($user){
             echo json_encode($user);
