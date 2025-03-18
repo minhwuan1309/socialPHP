@@ -20,7 +20,7 @@ class UserController {
     }
 
     public function getUser($search){
-        $result = $this->user->getUserByEmail($search);
+        $result = $this->user->getUser($search);
         $user = $result->fetchAll(PDO::FETCH_ASSOC);
 
         if($user){
@@ -49,7 +49,6 @@ class UserController {
         }
     }
 
-    // ✅ UPDATE - API cập nhật thông tin người dùng
     public function updateUser($id, $data) {
         if ($this->user->updateUser($id, $data)) {
             echo json_encode(["message" => "User updated successfully"]);
