@@ -1,2 +1,0 @@
-tạo model
-<?php?>
