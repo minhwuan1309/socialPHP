@@ -15,7 +15,7 @@ class CreateUsersTable {
             name VARCHAR(100) NOT NULL,
             email VARCHAR(100) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
-            avatar VARCHAR(255) DEFAULT NULL,
+            avatar VARCHAR(255) DEFAULT 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )";
 
