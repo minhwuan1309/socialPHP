@@ -94,6 +94,13 @@ class User{
         $stmt->bindParam(":password", $hashed_password);
         $stmt->bindParam(":email", $email);
         return $stmt->execute();
-    }   
+    }
+
+    public function verifyEmail($email) {
+        $query = "UPDATE " . $this->table . " SET active = 1 WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":email", $email);
+        return $stmt->execute();
+    }
 }
 ?>
