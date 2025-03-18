@@ -10,8 +10,9 @@ $path = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
 
 if ($requestMethod == 'GET' && isset($path[count($path) - 1]) && $path[count($path) - 1] == 'users') {
     $controller->getUsers();
-}elseif($requestMethod == 'GET' && isset($_GET['id'])){
-    $controller->getUser($_GET['id']);
+}elseif ($requestMethod == 'GET' && isset($_GET['search'])) {
+    $controller->getUser($_GET['search']);
+
 }elseif ($requestMethod == 'POST') { 
     $data = json_decode(file_get_contents("php://input"), true);
     $controller->createUser($data);
