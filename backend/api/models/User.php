@@ -78,6 +78,23 @@ class User{
     
         return $stmt->execute();
     }
+
+    public function getUserByEmail($email) {
+        $query = "SELECT * FROM " . $this->table . " WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
+        return $stmt;
+    }
+
+    public function resetPassword($email, $newPassword) {
+        $hashed_password = password_hash($newPassword, PASSWORD_BCRYPT);
+        $query = "UPDATE " . $this->table . " SET password = :password WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":password", $hashed_password);
+        $stmt->bindParam(":email", $email);
+        return $stmt->execute();
+    }
 }
 
 ?>
