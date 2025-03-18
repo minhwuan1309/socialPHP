@@ -9,14 +9,14 @@ class User{
     }
 
     public function getAllUsers(){
-        $query = "SELECT * FROM " . $this->table;
+        $query = "SELECT id, name, email, avatar, role FROM " . $this->table;
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
     }
 
-    public function getUserByEmail($search){
-        $query = "SELECT * FROM " . $this->table . " WHERE email LIKE :search OR name LIKE :search";
+    public function getUser($search){
+        $query = "SELECT id, name, email, avatar, role FROM " . $this->table . " WHERE email LIKE :search OR name LIKE :search";
         $stmt = $this->conn->prepare($query);
         $search = "%" . $search . "%"; // Tìm kiếm gần đúng
         $stmt->bindParam(':search', $search, PDO::PARAM_STR);
@@ -25,11 +25,15 @@ class User{
     }
 
     public function createUser($name, $email, $password, $avatar) {
-        $query = "INSERT INTO " . $this->table . " (name, email, password, avatar) 
-                  VALUES (:name, :email, :password, :avatar)";
+        if($this->getUserByEmail($email)){
+            return "exists";
+        }
+        
+
+        $query = "INSERT INTO " . $this->table . " (name, email, password, avatar, role) 
+                  VALUES (:name, :email, :password, :avatar, 'user')";
         $stmt = $this->conn->prepare($query);
 
-        // Hash mật khẩu trước khi lưu
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
         $stmt->bindParam(":name", $name);
@@ -37,39 +41,33 @@ class User{
         $stmt->bindParam(":password", $hashed_password);
         $stmt->bindParam(":avatar", $avatar);
 
+
         if ($stmt->execute()) {
-            return $this->conn->lastInsertId(); // Trả về ID user vừa tạo
+            return $this->conn->lastInsertId(); 
         } else {
-            return false; // Trả về false nếu có lỗi
+            return false; 
         }
     }
 
-    // ✅ UPDATE - Cập nhật thông tin người dùng
     public function updateUser($id, $data) {
-        $query = "SELECT name, email, avatar FROM " . $this->table . " WHERE id = :id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
-        $stmt->execute();
-        $existingUser = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$existingUser) {
-            return false;
+        $existingUser = $this->getUserByEmail($data['email'] ?? '');
+        if ($existingUser && $existingUser['id'] != $id) {
+            return "exists";
         }
 
-        $name = isset($data['name']) ? $data['name'] : $existingUser['name'];
-        $email = isset($data['email']) ? $data['email'] : $existingUser['email'];
-        $avatar = isset($data['avatar']) ? $data['avatar'] : $existingUser['avatar'];
+        $query = "UPDATE " . $this->table . " SET 
+                  name = COALESCE(:name, name), 
+                  email = COALESCE(:email, email), 
+                  avatar = COALESCE(:avatar, avatar) 
+                  WHERE id = :id";
 
-        // Cập nhật user
-        $updateQuery = "UPDATE " . $this->table . " SET name = :name, email = :email, avatar = :avatar WHERE id = :id";
-        $updateStmt = $this->conn->prepare($updateQuery);
-        $updateStmt->bindParam(":id", $id, PDO::PARAM_INT);
-        $updateStmt->bindParam(":name", $name);
-        $updateStmt->bindParam(":email", $email);
-        $updateStmt->bindParam(":avatar", $avatar);
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+        $stmt->bindParam(":name", $data["name"]);
+        $stmt->bindParam(":email", $data["email"]);
+        $stmt->bindParam(":avatar", $data["avatar"]);
 
-
-        return $updateStmt->execute();
+        return $stmt->execute();
     }
 
     public function deleteUser($id){
@@ -80,12 +78,13 @@ class User{
         return $stmt->execute();
     }
 
+    //Auth
     public function getUserByEmail($email) {
-        $query = "SELECT * FROM " . $this->table . " WHERE email = :email";
+        $query = "SELECT * FROM " . $this->table . " WHERE email = :email LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":email", $email);
         $stmt->execute();
-        return $stmt;
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function resetPassword($email, $newPassword) {
@@ -95,7 +94,6 @@ class User{
         $stmt->bindParam(":password", $hashed_password);
         $stmt->bindParam(":email", $email);
         return $stmt->execute();
-    }
+    }   
 }
-
 ?>
